@@ -10,19 +10,19 @@ const cardapio=[
 
 const Pedido = () => {
     //HOOK- useState- Manipula o estado da variavel
-    //Estado para gerenciar a lista de itens de cardapio
+    //Estado para gerenciar a lista de items de cardapio
 
-    const[itens, setItens]=useState(cardapio);
+    const[items, setItems]=useState(cardapio);
     const[status, setStatus]=useState("");
     const[enviar, setEnviar]=useState(false);
 
-    //Valor fixo adicionado ao total quando tiver itens no carrinho (taxa de entrega)
+    //Valor fixo adicionado ao total quando tiver items no carrinho (taxa de entrega)
 
     const taxaEntrega=5.00;
 
     //função que altera a quantidade do pedido
     const AlterarQuantidade=(id,valor)=>{
-        setItens(alt =>
+        setItems(alt =>
             //MAP: cria um novo array e percorre os items sem modificar o original (IMUTABILIDADE)
             alt.map(item=>
                 //TERNARIO: verifica se o item da interação atual é o que deve ser alterado
@@ -34,11 +34,11 @@ const Pedido = () => {
     }
 
     //FILTER: seleciona apenas os produtos disponic=veis no carrinho
-    const produtosDisponiveis = item.filter(item=>item.disponiver);
-    const carrinho = item.flter(item=>item.quantidade>0);
+    const produtosDisponiveis = items.filter(item=>item.disponivel);
+    const carrinho = items.filter(item=>item.quantidade>0);
 
     //REDUCE: calcula a soma dos items (preco + quantidade) e adiciona a taxa de entrega
-    const subTotal = carrinho.reduce((ac,item)=> ac + item.preco * item.quantidade);
+    const subTotal = carrinho.reduce((ac,item)=> ac + item.preco * item.quantidade,0);
     const total = subTotal >0 ? subTotal + taxaEntrega: 0;
 
     //Somulação do ciclo de vida de da entrega usando temporizador ASSINCRONO
@@ -57,9 +57,53 @@ const Pedido = () => {
 
 
   return (
-    <>
+    <div>
+        <h2>Cardápio do Restaurante</h2>
+        {produtosDisponiveis.map(produto=>(
+            <div>
+                <span>{produto.nome} R$ {produto.preco.toFixed(2)}</span>
+                <div>
+                    <button onClick={()=>AlterarQuantidade(produto.id, -1)}>-</button>
+                    <span>{produto.quantidade}</span>
+                    <button onClick={()=>AlterarQuantidade(produto.id, +1)}>+</button>
+                </div>
+            </div>
+        ))}
+        <hr />
+                <h3>Resumo da Entrega</h3>
+
+                {carrinho.length === 0 ?(
+                    <p>Seu Carrinho está vazio</p>
+                ):(
+                    <>
+                    <ul>
+                        {carrinho.map(item=>(
+                            <li key={item.id}>
+                                {item.quantidade} x {item.nome} -R$ {(item.preco * item.quantidade).toFixed(2)}
+                            </li>
+                        ))}
+                    </ul>
+                      <p>Subtotal: R$ {subTotal.toFixed(2)}</p>
+                      <p>Taxa de Entrega:  R$ {taxaEntrega.toFixed(2)}</p>
+                      <strong>
+                          total a pagar: R$ {total.toFixed(2)}
+                      </strong>
+
+                      <button onClick={ConfirmarPedido}>
+                          {enviar ? "Enviando" : "Confirmar Pedido"}
+                      </button>
+                    </>
+                    
+                
+                )}
+                {status && (
+                    <div>
+                        <strong>Alerta:</strong>{status}
+                    </div>
+
+                )}
       
-    </>
+    </div>
   )
 }
 
